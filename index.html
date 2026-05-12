@@ -1175,6 +1175,10 @@ body::after {
   transform: translateY(-2px);
   filter: brightness(1.05);
 }
+
+.giscus {
+  margin-top: 22px;
+}
 </style>
 </head>
 <body>
@@ -1794,24 +1798,47 @@ function openDeck(quotes, startIdx) {
           <button class="dc-btn dc-btn-img">📸 Share</button>
           <a class="dc-btn" href="https://andrewveda.github.io/a-quote-a-day/submissions" target="_blank">✏️ Add a Quote</a>
         </div>
-        <script src="https://giscus.app/client.js"
-        data-repo="andrewveda/a-quote-a-day"
-        data-repo-id="R_kgDORI8-yw"
-        data-category="General"
-        data-category-id="DIC_kwDORI8-y84C1-Jq"
-        data-mapping="specific"
-        data-term="Quote #${globalNum}"
-        data-strict="1"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="preferred_color_scheme"
-        data-lang="en"
-        crossorigin="anonymous"
-        async>
-</script>
+       <div class="dc-giscus-wrap">
+  <div class="giscus"></div>
+</div>
       </div>`;
+loadGiscusForCurrentQuote();
+    function loadGiscusForCurrentQuote() {
+  const slide = document.querySelectorAll('.deck-slide')[_deckIdx];
+  if (!slide) return;
 
+  const container = slide.querySelector('.giscus');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const globalNum =
+    allQuotes.findIndex(p =>
+      p.quote === _deckQuotes[_deckIdx].quote &&
+      p.contributor === _deckQuotes[_deckIdx].contributor
+    ) + 1;
+
+  const script = document.createElement('script');
+
+  script.src = 'https://giscus.app/client.js';
+  script.async = true;
+  script.crossOrigin = 'anonymous';
+
+  script.setAttribute('data-repo', 'andrewveda/a-quote-a-day');
+  script.setAttribute('data-repo-id', 'R_kgDORI8-yw');
+  script.setAttribute('data-category', 'General');
+  script.setAttribute('data-category-id', 'DIC_kwDORI8-y84C1-Jq');
+  script.setAttribute('data-mapping', 'specific');
+  script.setAttribute('data-term', `Quote #${globalNum}`);
+  script.setAttribute('data-strict', '1');
+  script.setAttribute('data-reactions-enabled', '1');
+  script.setAttribute('data-emit-metadata', '0');
+  script.setAttribute('data-input-position', 'top');
+  script.setAttribute('data-theme', 'preferred_color_scheme');
+  script.setAttribute('data-lang', 'en');
+
+  container.appendChild(script);
+}
     slide.querySelector('.dc-btn-wa').addEventListener('click', () => {
       _currentShareQuote = q; shareToWhatsApp();
     });
@@ -1861,6 +1888,7 @@ function deckGoTo(i, animate = true) {
   const track = document.getElementById('deckTrack');
   _deckIdx = Math.max(0, Math.min(i, _deckQuotes.length - 1));
   _currentShareQuote = _deckQuotes[_deckIdx];
+  loadGiscusForCurrentQuote();
 
   track.style.transition = animate ? 'transform 0.38s cubic-bezier(.4,0,.2,1)' : 'none';
   track.style.transform  = `translateX(-${_deckIdx * 100}%)`;
