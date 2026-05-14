@@ -4,27 +4,49 @@ const CONFIG = {
     PER_PAGE: 20
 };
 
-let DB = []; // The Master Archive
+let DB = []; 
 let currentView = [];
 let deckIdx = 0;
 
-/* ─── INITIALIZATION ─── */
-document.addEventListener('DOMContentLoaded', async () => {
-    initApp();
+/* --- KEYBOARD ENGINE --- */
+document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('deckOverlay');
+    if (!overlay || !overlay.classList.contains('open')) return;
+
+    if (e.key === "Escape") {
+        closeDeck();
+    } else if (e.key === "ArrowRight") {
+        if (deckIdx < currentView.length - 1) {
+            deckIdx++;
+            updateDeckPosition();
+        }
+    } else if (e.key === "ArrowLeft") {
+        if (deckIdx > 0) {
+            deckIdx--;
+            updateDeckPosition();
+        }
+    }
 });
 
-async function initApp() {
+function closeDeck() {
+    document.getElementById('deckOverlay').classList.remove('open');
+    document.body.style.overflow = 'auto';
+    window.history.replaceState(null, null, window.location.pathname);
+}
+
+/* --- CORE INITIALIZATION --- */
+document.addEventListener('DOMContentLoaded', async () => {
     await fetchArchive();
     setupNavigation();
     setupSwipeEngine();
     
-    // ROUTING: Check if user arrived via a unique link (e.g., ?id=102)
     const urlParams = new URLSearchParams(window.location.search);
     const quoteId = urlParams.get('id');
     if (quoteId) {
         jumpToQuote(quoteId);
     }
-}
+});
+
 async function fetchArchive() {
     const mainContent = document.getElementById('mainContent');
     try {
@@ -44,7 +66,6 @@ async function fetchArchive() {
         DB = (await Promise.all(promises)).filter(Boolean);
         DB.sort((a, b) => b.date - a.date);
         
-        // Ensure "All" view only renders if we actually have data
         if (DB.length > 0) {
             document.getElementById('mastCount').innerText = `${DB.length} Quotes`;
             renderGrid(DB); 
@@ -63,6 +84,7 @@ async function fetchArchive() {
         if(loader) loader.style.display = 'none';
     }
 }
+
 function parseEntry(md, filename, fallbackId) {
     const match = md.match(/---([\s\S]*?)---/);
     if (!match) return null;
@@ -71,18 +93,13 @@ function parseEntry(md, filename, fallbackId) {
     match[1].split('\n').forEach(line => {
         const i = line.indexOf(':');
         if (i !== -1) {
-            const key = line.substring(0, i).trim();
-            const val = line.substring(i + 1).trim();
-            data[key] = val;
+            data[line.substring(0, i).trim()] = line.substring(i + 1).trim();
         }
     });
 
     const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
-    // Unique ID is either the filename date + index or a provided field
-    const id = data.id || fallbackId; 
-
     return {
-        id: id,
+        id: data.id || fallbackId,
         quote: data.quote || "Text missing.",
         author: data.author || "Unknown",
         contributor: data.contributor || "Student",
@@ -93,185 +110,78 @@ function parseEntry(md, filename, fallbackId) {
     };
 }
 
-/* ─── THE DIRECTORY PANEL (Relational Logic) ─── */
-function openDirectory(category) {
-    const panel = document.getElementById('dirPanel');
-    const list = document.getElementById('dirList');
-    const title = document.getElementById('dirTitle');
-    
-    title.innerText = category.charAt(0).toUpperCase() + category.slice(1);
-    list.innerHTML = '';
-
-    // Grouping Logic
-    const index = {};
-    DB.forEach(item => {
-        const key = (category === 'authors') ? item.author : 
-                    (category === 'contributors') ? item.contributor : item.department;
-        if (!index[key]) index[key] = [];
-        index[key].push(item);
-    });
-
-    // Sort by count (Premium UX: most active people first)
-    Object.keys(index).sort((a, b) => index[b].length - index[a].length).forEach(name => {
-        const row = document.createElement('div');
-        row.className = 'dir-row';
-        row.innerHTML = `<strong>${name}</strong> <span class="dir-badge">${index[name].length}</span>`;
-        row.onclick = () => {
-            renderGrid(index[name], `Archive: ${name}`);
-            closeDirectory();
-        };
-        list.appendChild(row);
-    });
-
-    panel.classList.add('open');
-    document.getElementById('dirBackdrop').style.display = 'block';
-}
-
+/* --- DECK ENGINE --- */
 function openDeck(quotes, startIdx) {
     currentView = quotes;
     deckIdx = startIdx;
     
-    // 1. Setup Progress Dots (Visual anchor from screenshot)
-    const topBar = document.querySelector('.deck-topbar');
-    let dotsHtml = '<div class="progress-container">';
-    quotes.forEach((_, i) => {
-        dotsHtml += `<div class="progress-dot ${i === startIdx ? 'active' : ''}" id="dot-${i}"></div>`;
-    });
-    dotsHtml += '</div>';
-    
-    // Inject or update dots
-    const existingDots = document.querySelector('.progress-container');
-    if (existingDots) existingDots.remove();
-    document.getElementById('deckCounter').insertAdjacentHTML('afterend', dotsHtml);
-
     const track = document.getElementById('deckTrack');
     track.innerHTML = '';
 
     quotes.forEach((q, i) => {
         const slide = document.createElement('div');
         slide.className = 'deck-slide';
+        
         slide.innerHTML = `
             <div class="deck-card" id="export-target-${i}">
-                <div class="dc-kicker">QUOTE #${q.id} · ${q.dateStr.toUpperCase()}</div>
-                <div class="dc-quote">"${q.quote}"</div>
-                <div class="dc-author">${q.author}</div>
-                <div class="dc-role">Quoted Author</div>
-                
-                <div class="dc-contrib-envelope">
-                    <div class="dc-contrib-label">CONTRIBUTED BY</div>
-                    <div class="dc-contrib-name">${q.contributor}</div>
-                    <div class="dc-contrib-dept">${q.department}</div>
+                <div class="dc-content-scroll">
+                    <div class="dc-kicker">QUOTE #${q.id} · ${q.dateStr.toUpperCase()}</div>
+                    <div class="dc-quote">"${q.quote}"</div>
+                    <div class="dc-author">${q.author}</div>
+                    <div class="dc-role">Quoted Author</div>
                     
-                    <div style="height:1px; background:var(--gold-border); margin:20px 0;"></div>
-                    <div class="dc-contrib-label">WHAT THIS MEANS TO ME</div>
-                    <div class="dc-reflection">"${q.about || "A reflection of wisdom."}"</div>
+                    <div class="dc-contrib-envelope">
+                        <div class="dc-contrib-label">CONTRIBUTED BY</div>
+                        <div class="dc-contrib-name">${q.contributor}</div>
+                        <div class="dc-contrib-dept">${q.department}</div>
+                        
+                        ${q.about ? `
+                            <div style="height:1px; background:var(--gold-border); margin:20px 0;"></div>
+                            <div class="dc-contrib-label">WHAT THIS MEANS TO ME</div>
+                            <div class="dc-reflection">"${q.about}"</div>
+                        ` : ''}
+                    </div>
                 </div>
 
                 <div class="deck-action-row no-export">
-                    <button class="btn-action discuss" onclick="openGiscus(${i})">💬 DISCUSS</button>
-                    <button class="btn-action" onclick="shareToWhatsApp(${i})">📲 WHATSAPP</button>
-                    <button class="btn-action" onclick="shareAsImage(${i})">📸 SHARE</button>
-                    <a href="https://andrewveda.github.io/a-quote-a-day/submissions" target="_blank" class="btn-action" style="text-decoration:none;">
-                        ✏️ ADD A QUOTE
+                    <button class="btn-premium-action btn-whatsapp" onclick="shareToWhatsApp(${i})">
+                        📲 Share on WhatsApp
+                    </button>
+                    <a href="https://andrewveda.github.io/a-quote-a-day/submissions" target="_blank" class="btn-premium-action btn-submit">
+                        ✏️ Add a Quote
                     </a>
                 </div>
-                
-                <div class="giscus-mount" id="giscus-slot-${i}" style="margin-top:30px; display:none;"></div>
+                <div class="giscus-mount" id="giscus-slot-${i}" style="margin-top:20px;"></div>
             </div>
         `;
         track.appendChild(slide);
     });
 
     document.getElementById('deckOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
     updateDeckPosition(false);
 }
 
 function updateDeckPosition(animate = true) {
     const track = document.getElementById('deckTrack');
-    track.style.transition = animate ? 'transform 0.4s var(--spring)' : 'none';
+    if (!track) return;
+    
+    track.style.transition = animate ? 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
     track.style.transform = `translateX(${-deckIdx * 100}vw)`;
     
-    document.getElementById('deckCounter').innerText = `${deckIdx + 1} / ${currentView.length}`;
-    
-    // Update active dot
-    document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === deckIdx);
-    });
+    const counter = document.getElementById('deckCounter');
+    if (counter) counter.innerText = `${deckIdx + 1} / ${currentView.length}`;
 
     const q = currentView[deckIdx];
-    window.history.replaceState(null, null, `?id=${q.id}`);
+    if (q) window.history.replaceState(null, null, `?id=${q.id}`);
 
     loadGiscus(deckIdx);
 }
 
-async function shareToWhatsApp(idx) {
-    const q = currentView[idx];
-    const btn = event.currentTarget;
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = "<span>Formatting Masterpiece...</span>";
-
-    try {
-        // Create a dedicated Export Container
-        const stage = document.getElementById('share-canvas-container');
-        stage.innerHTML = `
-            <div id="poster-export" style="width:540px; height:960px; background:#faf7f2; padding:60px; display:flex; flex-direction:column; font-family:'Raleway', sans-serif; position:relative; border-top:10px solid #c9a84c;">
-                <div style="font-family:'IM Fell English', serif; font-style:italic; font-size:24px; color:#c9a84c; margin-bottom:40px;">A Quote A Day</div>
-                
-                <div style="font-family:'Playfair Display', serif; font-style:italic; font-size:32px; line-height:1.4; color:#1a1a1a; border-left:4px solid #c9a84c; padding-left:20px; margin-bottom:40px;">
-                    "${q.quote}"
-                </div>
-                
-                <div style="font-family:'Playfair Display', serif; font-weight:900; font-size:36px; margin-bottom:5px;">${q.author}</div>
-                <div style="font-family:'DM Mono', monospace; font-size:10px; color:#b0a99f; text-transform:uppercase; letter-spacing:2px; margin-bottom:60px;">Quoted Source</div>
-                
-                <div style="background:rgba(201,168,76,0.1); border-radius:15px; padding:30px; border-left:5px solid #c9a84c;">
-                    <div style="font-family:'DM Mono', monospace; font-size:9px; color:#c9a84c; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Reflection by ${q.contributor}</div>
-                    <div style="font-family:'Raleway', sans-serif; font-style:italic; font-size:16px; color:#5a5650; line-height:1.6;">
-                        ${q.about || "This quote was archived for its profound wisdom."}
-                    </div>
-                </div>
-
-                <div style="margin-top:auto; font-family:'DM Mono', monospace; font-size:9px; color:#b0a99f; text-transform:uppercase; letter-spacing:1px;">
-                    SRM VEC ENGLISH DEPT · ARCHIVE NO. ${q.id}
-                </div>
-            </div>
-        `;
-
-        const canvas = await html2canvas(document.getElementById('poster-export'), {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#faf7f2"
-        });
-
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
-        const file = new File([blob], `SRM-Archive-${q.id}.jpg`, { type: 'image/jpeg' });
-        const shareLink = `${window.location.origin}${window.location.pathname}?id=${q.id}`;
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: `Wisdom from ${q.author}`,
-                text: `Read the full reflection at: ${shareLink}`
-            });
-        } else {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL("image/jpeg");
-            link.download = `SRM-Archive-${q.id}.jpg`;
-            link.click();
-        }
-        stage.innerHTML = ''; // Clean up
-    } catch (err) {
-        console.error("Export Error:", err);
-        alert("Image generation failed. Try again.");
-    } finally {
-        btn.innerHTML = originalContent;
-    }
-}
-
-/* ─── UTILITIES ─── */
+/* --- UTILITIES --- */
 function loadGiscus(idx) {
     const slot = document.getElementById(`giscus-slot-${idx}`);
-    if (slot.innerHTML !== '') return;
+    if (!slot || slot.innerHTML !== '') return;
 
     const script = document.createElement('script');
     script.src = "https://giscus.app/client.js";
@@ -280,28 +190,50 @@ function loadGiscus(idx) {
     script.setAttribute("data-category", "General");
     script.setAttribute("data-category-id", "DIC_kwDORI8-y84C1-Jq");
     script.setAttribute("data-mapping", "specific");
-   script.setAttribute(
-  "data-term",
-  `${currentView[idx].author} — ${currentView[idx].contributor}`
-);
+    script.setAttribute("data-term", `${currentView[idx].author} — ${currentView[idx].contributor}`);
     script.setAttribute("data-theme", "preferred_color_scheme");
     script.crossOrigin = "anonymous";
     script.async = true;
     slot.appendChild(script);
 }
 
-function jumpToQuote(id) {
-    const found = DB.find(q => String(q.id) === String(id));
-    if (found) {
-        openDeck(DB, DB.indexOf(found));
-    }
+async function shareToWhatsApp(idx) {
+    const q = currentView[idx];
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = "<span>Processing...</span>";
+
+    try {
+        const stage = document.getElementById('share-canvas-container');
+        stage.innerHTML = `
+            <div id="poster-export" style="width:540px; min-height:960px; background:#faf7f2; padding:60px; display:flex; flex-direction:column; border-top:10px solid #c9a84c;">
+                <div style="font-size:32px; line-height:1.4; border-left:4px solid #c9a84c; padding-left:20px; margin-bottom:40px;">"${q.quote}"</div>
+                <div style="font-weight:900; font-size:36px;">${q.author}</div>
+                <div style="background:rgba(201,168,76,0.1); padding:30px; margin-top:40px;">
+                    <div style="font-size:12px; font-weight:700;">REFLECTION BY ${q.contributor}</div>
+                    <div style="font-style:italic; margin-top:10px;">${q.about}</div>
+                </div>
+            </div>`;
+
+        const canvas = await html2canvas(document.getElementById('poster-export'), { scale: 2 });
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
+        const file = new File([blob], `Quote-${q.id}.jpg`, { type: 'image/jpeg' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], text: `Shared from A Quote A Day` });
+        } else {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL();
+            link.download = `Quote-${q.id}.jpg`;
+            link.click();
+        }
+    } catch (e) { console.error(e); }
+    btn.innerHTML = originalContent;
 }
 
 function setupSwipeEngine() {
-    let startX = 0;
-    let dist = 0;
+    let startX = 0, dist = 0;
     const area = document.getElementById('deckOverlay');
-
     area.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
     area.addEventListener('touchmove', e => { dist = e.touches[0].clientX - startX; }, {passive: true});
     area.addEventListener('touchend', () => {
@@ -318,50 +250,47 @@ function setupNavigation() {
     document.querySelectorAll('.quick-tab').forEach(btn => {
         btn.onclick = () => {
             const tab = btn.dataset.tab;
-            if (tab === 'all') {
-                renderGrid(DB);
-                setActiveTab(btn);
-            } else {
-                openDirectory(tab);
-            }
+            document.querySelectorAll('.quick-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tab === 'all' ? renderGrid(DB) : openDirectory(tab);
         };
     });
-    
-    document.getElementById('deckClose').onclick = () => {
-        document.getElementById('deckOverlay').classList.remove('open');
-        document.body.style.overflow = 'auto';
-        window.history.replaceState(null, null, window.location.pathname);
-    };
-    
-    document.getElementById('dirClose').onclick = closeDirectory;
-    document.getElementById('dirBackdrop').onclick = closeDirectory;
+    document.getElementById('deckClose').onclick = closeDeck;
 }
 
-function renderGrid(quotes, titleLabel = null) {
+function renderGrid(quotes) {
     const container = document.getElementById('mainContent');
     container.innerHTML = '<div class="col-grid"></div>';
     const grid = container.querySelector('.col-grid');
-
     quotes.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'q-card';
-        card.innerHTML = `
-            <div class="q-card-text">"${q.quote}"</div>
-            <div class="q-card-author">— ${q.author}</div>
-            <div class="q-card-meta">${q.contributor} · ${q.department}</div>
-        `;
+        card.innerHTML = `<div class="q-card-text">"${q.quote}"</div><div>— ${q.author}</div>`;
         card.onclick = () => openDeck(quotes, i);
         grid.appendChild(card);
     });
 }
 
-function closeDirectory() {
-    document.getElementById('dirPanel').classList.remove('open');
-    document.getElementById('dirBackdrop').style.display = 'none';
+function openDirectory(category) {
+    const list = document.getElementById('dirList');
+    list.innerHTML = '';
+    const index = {};
+    DB.forEach(item => {
+        const key = category === 'authors' ? item.author : (category === 'contributors' ? item.contributor : item.department);
+        if (!index[key]) index[key] = [];
+        index[key].push(item);
+    });
+    Object.keys(index).sort((a,b) => index[b].length - index[a].length).forEach(name => {
+        const row = document.createElement('div');
+        row.className = 'dir-row';
+        row.innerHTML = `<strong>${name}</strong> <span class="dir-badge">${index[name].length}</span>`;
+        row.onclick = () => { renderGrid(index[name]); document.getElementById('dirPanel').classList.remove('open'); };
+        list.appendChild(row);
+    });
+    document.getElementById('dirPanel').classList.add('open');
 }
 
-function copyDeepLink(id) {
-    const link = `${window.location.origin}${window.location.pathname}?id=${id}`;
-    navigator.clipboard.writeText(link);
-    alert("Unique archive link copied to clipboard!");
+function jumpToQuote(id) {
+    const found = DB.find(q => String(q.id) === String(id));
+    if (found) openDeck(DB, DB.indexOf(found));
 }
