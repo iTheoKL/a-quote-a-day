@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
 
-const INPUT_DIR = path.join(__dirname, '..', 'quotes-md');
+const INPUT_DIR = path.join(__dirname, '..', 'quotes');
 const OUTPUT_DIR = path.join(__dirname, '..', 'quotes');
 
 if (!fs.existsSync(INPUT_DIR)) {
