@@ -1,11 +1,11 @@
 [
   {
-    "id": 101,
-    "quote": "Your quote goes here.",
-    "author": "Author Full Name",
-    "contributor": "Your Full Name",
-    "department": "Your Department",
-    "about": "What this quote means to you. Be honest, be personal.",
-    "date": "2024-03-15"
+    "quote": "Power resides where men believe it resides.",
+    "author": "Varys",
+    "contributor": "Avi",
+    "department": "Cyber Security",
+    "about": "Power isn't something fixed. It comes from people's belief. Whoever people accept as powerful becomes powerful. If that belief is gone, that power disappears.",
+    "date": "2026-05-05",
+    "id": 1
   }
 ]
