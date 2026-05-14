@@ -162,7 +162,7 @@ function renderGrid(quotes) {
             ${snippet}
             <div class="q-card-footer">
                 <div>
-                    <div class="q-card-author">${q.author}</div>
+                    <div class="q-card-author">${q.author} <span class="q-card-contrib">via ${q.contributor}</span></div>
                     <div class="q-card-dept">${q.department}</div>
                 </div>
                 <div class="q-card-arrow">→</div>
@@ -393,7 +393,7 @@ function renderGroupedGrid(groupBy) {
                 ${snippet}
                 <div class="q-card-footer">
                     <div>
-                        <div class="q-card-author">${q.author}</div>
+                        <div class="q-card-author">${q.author} <span class="q-card-contrib">via ${q.contributor}</span></div>
                         <div class="q-card-dept">${q.department}</div>
                     </div>
                     <div class="q-card-arrow">→</div>
