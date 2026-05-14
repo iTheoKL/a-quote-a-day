@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════
+   A QUOTE A DAY — Premium Style System v2
+   "Parchment & Ink" — Editorial Luxury
+═══════════════════════════════════════════════════ */
 
 /* ─── 0. RESET & BASE ─── */
 *, *::before, *::after {
@@ -538,7 +542,7 @@ body {
     width: 28px;
 }
 
-/* Prev/Next arrows */
+/* Prev/Next arrows — prominent gold */
 .deck-nav-arrows {
     position: absolute;
     top: 50%;
@@ -548,33 +552,38 @@ body {
     justify-content: space-between;
     padding: 0 20px;
     pointer-events: none;
-    z-index: 5;
+    z-index: 10;
 }
 
 .arrow-btn {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.10);
-    color: rgba(255,255,255,0.5);
-    font-size: 18px;
+    background: var(--gold);
+    border: 3px solid rgba(255,255,255,0.25);
+    color: white;
+    font-size: 22px;
     cursor: pointer;
     pointer-events: all;
-    transition: all 0.25s var(--ease);
+    transition: all 0.25s var(--spring);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 24px rgba(184,145,58,0.5), 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .arrow-btn:hover {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: white;
+    background: var(--gold-light);
+    transform: scale(1.12);
+    box-shadow: 0 8px 36px rgba(184,145,58,0.65), 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .arrow-btn:disabled {
-    opacity: 0.2;
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.18);
+    box-shadow: none;
+    transform: none;
     cursor: default;
 }
 
@@ -595,11 +604,39 @@ body {
 .deck-slide {
     flex: 0 0 100vw;
     width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 24px 24px;
     overflow-y: auto;
+    padding-top: 72px;
+}
+
+/* 70 / 30 two-column layout inside each slide */
+.deck-layout {
+    display: flex;
+    min-height: calc(100% - 72px);
+}
+
+.deck-left {
+    width: 70%;
+    padding: 28px 28px 48px 48px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.07);
+}
+
+.deck-right {
+    width: 30%;
+    padding: 28px 28px 48px 28px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.22);
+}
+
+.deck-comments-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
 /* ─── 6. DECK CARD ─── */
@@ -607,16 +644,12 @@ body {
     background: var(--surface);
     border-radius: 24px;
     width: 100%;
-    max-width: 580px;
     padding: 0;
     box-shadow: var(--sh-lg);
     position: relative;
     animation: cardRise 0.5s var(--spring);
-    max-height: 88vh;
-    overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--gold-border) transparent;
-    align-self: flex-start;
 }
 
 @keyframes cardRise {
@@ -804,9 +837,9 @@ body {
     border-color: var(--gold);
 }
 
-/* Giscus */
+/* Giscus — sits in .deck-right, no extra padding needed */
 .giscus-mount {
-    padding: 0 44px 32px;
+    padding: 0;
 }
 
 /* ─── 7. DIRECTORY PANEL ─── */
@@ -948,14 +981,33 @@ body {
         gap: 14px;
     }
 
-    /* ── Compact mobile deck ── */
+    /* ── Collapse to single column on mobile ── */
     .deck-slide {
-        padding: 64px 10px 10px;
-        align-items: flex-start;
+        padding-top: 64px;
+        overflow-y: auto;
     }
 
+    .deck-layout {
+        flex-direction: column;
+        min-height: unset;
+    }
+
+    .deck-left {
+        width: 100%;
+        padding: 12px 12px 4px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        overflow-y: visible;
+    }
+
+    .deck-right {
+        width: 100%;
+        padding: 16px 12px 24px;
+        background: rgba(0,0,0,0.18);
+    }
+
+    /* ── Compact mobile deck card ── */
     .deck-card {
-        max-height: none;
         border-radius: 18px;
     }
 
@@ -977,18 +1029,9 @@ body {
         margin-bottom: 18px;
     }
 
-    .dc-author {
-        font-size: 20px;
-    }
-
-    .dc-role {
-        font-size: 9px;
-        margin-top: 3px;
-    }
-
-    .dc-byline {
-        margin-bottom: 18px;
-    }
+    .dc-author { font-size: 20px; }
+    .dc-role { font-size: 9px; margin-top: 3px; }
+    .dc-byline { margin-bottom: 18px; }
 
     .dc-envelope {
         padding: 16px;
@@ -1003,23 +1046,10 @@ body {
         margin-bottom: 5px;
     }
 
-    .dc-contrib-name {
-        font-size: 18px;
-    }
-
-    .dc-contrib-dept {
-        font-size: 8px;
-        margin-top: 2px;
-    }
-
-    .dc-divider {
-        margin: 12px 0;
-    }
-
-    .dc-reflection {
-        font-size: 13px;
-        line-height: 1.6;
-    }
+    .dc-contrib-name { font-size: 18px; }
+    .dc-contrib-dept { font-size: 8px; margin-top: 2px; }
+    .dc-divider { margin: 12px 0; }
+    .dc-reflection { font-size: 13px; line-height: 1.6; }
 
     .deck-action-row {
         padding: 0 18px 18px;
@@ -1031,10 +1061,6 @@ body {
         padding: 10px 14px;
         font-size: 10px;
         min-width: 0;
-    }
-
-    .giscus-mount {
-        padding: 0 18px 18px;
     }
 
     .deck-nav-arrows { display: none; }
