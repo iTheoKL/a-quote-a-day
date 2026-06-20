@@ -7,7 +7,7 @@ quote: |
 
 author: Alexander Pope
 what_it_means_to_me: "Blessed are the forgetful, but I wouldn't trade the spots in my mind to get them erased."
-contributor: Aritha
+contributor: Amritha
 department: AI-DS
 
 source: |
