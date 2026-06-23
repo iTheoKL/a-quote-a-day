@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════
-   A QUOTE A DAY — app.js
-   Compact mobile masthead integrated
-═══════════════════════════════════════════ */
-
 const CONFIG = {
     REPO: "AndrewVeda/a-quote-a-day",
     DIR:  "quotes",
