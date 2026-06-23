@@ -1,9 +1,4 @@
-/* ═══════════════════════════════════════════
-   A QUOTE A DAY — style.css
-   Compact mobile masthead integrated
-═══════════════════════════════════════════ */
 
-/* ─── 0. RESET & BASE ─── */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
