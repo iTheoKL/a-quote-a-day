@@ -1,5 +1,5 @@
 ---
-quote: Annihilating is easy. Raising things to the ground is easy. Trying to fix what's broken is hard. Hope is hard.
+quote: Annihilating is easy. Razing things to the ground is easy. Trying to fix what's broken is hard. Hope is hard.
 author: Loki
 contributor: Barry (Pacman)
 department: Cyber Security
