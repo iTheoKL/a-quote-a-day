@@ -2,7 +2,7 @@
 quote: Which is worse? To die, or to be the one who survives? To grieve? Or to be grieved?
 author: The Fading Man
 source: 'Clair Obscur: Expedition 33'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - mortality
