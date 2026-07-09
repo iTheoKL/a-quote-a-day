@@ -2,7 +2,7 @@
 quote: Is it a blessing to understand your darkest nature… Or a curse to which we turn a blind eye? We lie to ourselves all the time, don’t we? About things we’d rather not admit. Or confront.
 author: The Fading Man
 source: 'Clair Obscur: Expedition 33'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - human nature
