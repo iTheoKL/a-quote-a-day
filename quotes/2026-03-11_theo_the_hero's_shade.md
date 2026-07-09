@@ -2,7 +2,7 @@
 quote: A sword wields no strength unless the hand that holds it has courage.
 author: The Hero's Shade
 source: 'The Legend of Zelda: Twilight Princess'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - courage
