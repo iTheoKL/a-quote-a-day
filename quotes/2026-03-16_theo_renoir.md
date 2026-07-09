@@ -2,7 +2,7 @@
 quote: People come and people go but the only one that will be there for you is you. Little one there is more to life, if only you knew how big the sky truly is. Reach out your hand, and it's yours.
 author: Unknown Journal Entry (Renoir)
 source: 'Clair Obscur: Expedition 33'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - existentialism

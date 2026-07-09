@@ -2,7 +2,7 @@
 quote: The closer you get to the light, the greater your shadow becomes.
 author: Squall Leonhart
 source: Final Fantasy VIII
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - power

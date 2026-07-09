@@ -1,7 +1,7 @@
 ---
 quote: Stories allow you to experience places you could never go—the past, the future, or distant worlds. You can become a different ethnicity or gender. Even when you’re reading all by yourself, you're sharing those stories as they unfold before you with countless people whom you’ve never met. We are alone, but we are connected.
 author: Hideo Kojima
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 date: 2026-02-07
 source: Interview 
