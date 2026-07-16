@@ -2,7 +2,7 @@
 quote: Art can be a Window and art can be a Mirror. And great art… Great art is both. So, you’ll never be a true artist if there’s always a mask between you and the viewer, especially when the viewer is you…
 author: Unknown Journal Entry (Renoir)
 source: 'Clair Obscur: Expedition 33'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - art

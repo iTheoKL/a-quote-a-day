@@ -2,7 +2,7 @@
 quote: Finding a rock and losing it is better than never finding a rock in the first place.
 author: Esquie
 source: 'Clair Obscur: Expedition 33'
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - meaning

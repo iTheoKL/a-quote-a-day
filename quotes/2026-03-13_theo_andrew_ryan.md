@@ -2,7 +2,7 @@
 quote: A man chooses. A slave obeys.
 author: Andrew Ryan
 source: BioShock
-contributor: Lyqorrr (DK)
+contributor: Theo K Laurent
 department: Cyber Security
 tags:
   - freedom
